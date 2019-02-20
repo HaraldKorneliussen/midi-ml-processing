@@ -1,0 +1,42 @@
+MIDI-ML-PROCESSING:
+
+This repository contains scripts I used to make the machine-generated piano midi music at https://soundcloud.com/vintermann. It's made available since it was requested, not because it's great code!
+
+WHAT I DID:
+
+I used midicomp by Mark Constable to turn scanned piano roll midi files into a text format.
+
+I then used perl scripts to process this format into a terser format more friendly to char-rnn and similar programs.
+
+I trained models in these programs, set them to generate random text according to the model, and (manually) split the output into pieces which could be converted back into midi.
+
+FILES:
+
+- prep.pl
+
+Removes unnecessary information from the midicomp output, such as lyrics. It is still a valid file in midicomp's text format after the changes.
+
+- relativize.pl
+
+Changes the file to make it more edible for an LSTM. In particular, it changes timing information from absolute values to deltas.
+
+- derelativize.pl
+
+Undoes all the changes of relativize.pl, in order to make it convertible to midi again.
+
+NOTES:
+
+I trained on non-expression rolls only, because 1. they are more numerous, 2. it leaves one less thing for the model to struggle with (dynamics). Also, only on files with only one midi channel, but this is the case for most scanned piano rolls.
+People who scan piano rolls, however, vary in what volume they set every key in a non-expression roll to. Since this variation isn't interesting, I set them all to 80 (stupidly with a regexp search and replace, not a script... I said the pipeline was messy didn't I?).
+
+NOT INCLUDED:
+- midicomp (get it at https://github.com/markc/midicomp)
+- char-rnn (the implementation I used can be found at https://github.com/karpathy/char-rnn)
+- grid-lstm (the implementation I used can be found at https://github.com/coreylynch/grid-lstm)
+- the midi files to train on. I used files from multiple sources, including Terry Smythe (http://www.terrysmythe.ca/archive.htm) and Warren Trachtman (http://www.trachtman.org/rollscans/RollListing.php).
+Not all of these files are redistributable, hence why I don't include them (also, there were 4672 of them). I believe they are fair game for machine learning, but who knows what you can get sued over.
+
+SUGGESTED THINGS TO DO:
+
+* Automate this messy pipeline
+* Try smarter next-token-predictors, such as Transformer.
